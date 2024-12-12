@@ -1,0 +1,41 @@
+Lance S.
+Dr. Gary Lewandoski
+Operating Systems
+
+
+1. Run process-run.py with the following flags: -l 5:100,5:100. What should the CPU utilization be (e.g., the percent of time the CPU is in use?) Why do you know this? Use the -c and -p flags to see if you were right. 
+
+The CPU utilization should be 100%. The “5:100” means that the process usually consistc of 5 instructions and each instruction has a 100% chance of being a CPU instruction. After using the -c flags, you can see that the CPU is being used 100% of the time.
+
+2. Now run with these flags: ./process-run.py -l 4:100,1:0. These flags specify one process with 4 instructions (all to use the CPU), and one that simply issues an I/O and waits for it to be done. How long does it take to complete both processes? Use -c and -p to find out if you were right. 
+
+The total time to complete both processes is 11 clock ticks.
+
+3. Switch the order of the processes: -l 1:0,4:100. What happens now? Does switching the order matter? Why? (As always, use -c and -p to see if you were right) 
+
+Now the total time to complete both takes 7 clock ticks. This is because the first process is waiting on IO, the second process runs. So, switching the order does matter.
+
+4. We’ll now explore some of the other flags. One important flag is -S, which determines how the system reacts when a process issues an I/O. With the flag set to SWITCH ON END, the system will NOT switch to another process while one is doing I/O, instead waiting until the process is completely finished. What happens when you run the following two processes (-l 1:0,4:100 -c -S SWITCH ON END), one doing I/O and the other doing CPU work? 
+
+The second process waits for the first process to be done before it runs.
+
+5. Now, run the same processes, but with the switching behavior set to switch to another process whenever one is WAITING for I/O (-l 1:0,4:100 -c -S SWITCH ON IO). What happens now? Use -c and -p to confirm that you are right. 
+
+Now, the second process runs when the first process is waiting on IO.
+
+6. One other important behavior is what to do when an I/O completes. With -I IO RUN LATER, when an I/O completes, the process that issued it is not necessarily run right away; rather, whatever was running at the time keeps running. What happens when you run this combination of processes? (./process-run.py -l 3:0,5:100,5:100,5:100 -S SWITCH ON IO -c -p -I IO RUN LATER) Are system resources being effectively utilized? 
+
+When these processes are on run, process 1 starts then is blocked, and processes 2, 3, and 4 run consecutively. When the fourth process finishes, the program issues IOs until process one is done. The systems are utilized effectively, the trace took 31 clock ticks to run, and the CPU was busy nearly 70% of the time and the IO was busy less than 50% of the time.
+
+7. Now run the same processes, but with -I IO RUN IMMEDIATE set, which immediately runs the process that issued the I/O. How does this behavior differ? Why might running a process that just completed an I/O again be a good idea?
+
+Now, process 1 is in the run phase while processes 2, 3, and 4 run consecutively. This lets process 1 finish while process 4 is finishing, so the trace would take less time. Resources are utilized more effectively, total time is 21 clock ticks, CPU was busy 100% of the time, and IO was busy 70% of the time. Running a process that just completed an IO again might be a good idea because it keeps the CPU busy while other processes wait for their IO operations to complete.
+
+8. Now run with some randomly generated processes using flags -s 1 -l 3:50,3:50 or -s 2 -l 3:50,3:50 or -s 3 -l 3:50, 3:50. See if you can predict how the trace will turn out. What happens when you use the flag -I IO RUN IMMEDIATE versus that flag -I IO RUN LATER? What happens when you use the flag -S SWITCH ON IO versus -S SWITCH ON END?
+
+Using flag -s 1 -l 3:50,3:50: When using the io run immediate flag and the io run later flag, there were identical traces with identical total time and CPU and IO busyness. When using the switch on io and switch on end flags, the switch on io was a more effective utilization of resources. Switch on IO had a total time of 15, with the CPU being busy 53% of the time, and the IO being busy 67% of the time. Switch on end had a total time of 18, with the CPU being busy 44% of the time, and the IO being busy 56% of the time.
+
+9. Does the use of process-run with switches demonstrate policy or mechanism? Explain!
+
+Using process-run with switches demonstrates policy, which is when to change state. The traces of the program show when processes states are changed, but not how they are changed, which is mechanism. When using the switch on io flag with process-run, processes change states on IO and that is reflected in the trace, so how they are changed isn’t shown.
+
